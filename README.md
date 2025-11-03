@@ -69,3 +69,33 @@ This project is designed to run in a modern web development environment that can
 1.  **Serve the Project:** Use any local web server to serve the project from its root directory.
 2.  **Environment Setup:** Ensure the `API_KEY` environment variable is correctly injected and available to the application's JavaScript context as `process.env.API_KEY`.
 3.  **Access the Application:** Open your web browser and navigate to the address provided by your local server.
+
+## 🧪 Mock User Accounts
+
+You can use the following mock accounts to test the application's features from different user perspectives.
+
+**Password for all accounts:** `Password123!`
+
+---
+
+### **Admin Account**
+
+*   **Email:** `admin@majlis.local`
+    *   _Can access the Admin Panel, manage feedback, and post announcements._
+
+### **Member (Mentor) Accounts**
+
+*   **Email:** `maria@majlis.local`
+*   **Email:** `chen@majlis.local`
+*   **Email:** `david@majlis.local`
+*   **Email:** `aisha@majlis.local`
+    *   _Can post activities and announcements, view the student roster, and manage feedback._
+
+### **Student Accounts**
+
+*   **Email:** `fatimah@student.majlis.local`
+*   **Email:** `omar@student.majlis.local`
+*   **Email:** `lina@student.majlis.local`
+*   **Email:** `yusuf@student.majlis.local`
+*   **Email:** `sara@student.majlis.local`
+    *   _Can create regular posts, rate activities, and submit feedback._
