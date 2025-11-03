@@ -1,12 +1,12 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { Difficulty, MCQ } from '../types.ts';
 import { generateMcqs } from '../services/geminiService.ts';
-import { parsePdf, createPdf, createDocx } from '../services/fileService.ts';
+import { parsePdf, createDocx } from '../services/fileService.ts';
 import { SpinnerIcon, UploadIcon, FileIcon, DownloadIcon, AccentMark, CheckCircleIcon } from './Icons.tsx';
 import { useApp } from '../hooks/useApp.ts';
 
 export const MCQGenerator: React.FC = () => {
-  const { translations: t } = useApp();
+  const { translations: t, language } = useApp();
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [topic, setTopic] = useState<string>('');
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.Medium);
@@ -49,12 +49,10 @@ export const MCQGenerator: React.FC = () => {
     }
   }, [pdfFile, topic, difficulty, questionCount, t]);
 
-  const handleDownload = async (format: 'pdf' | 'docx') => {
+  const handleDownload = async (format: 'docx') => {
     if (mcqs.length === 0) return;
     try {
-        const blob = format === 'pdf' 
-            ? createPdf(mcqs, topic, t)
-            : await createDocx(mcqs, topic, t);
+        const blob = await createDocx(mcqs, topic, t, language);
         
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -124,9 +122,6 @@ export const MCQGenerator: React.FC = () => {
             <h2 className="text-xl font-semibold text-slate-800">{t.mcqReviewTitle}</h2>
             {mcqs.length > 0 && (
               <div className="flex space-x-2 rtl:space-x-reverse">
-                <button onClick={() => handleDownload('pdf')} className="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-200">
-                  <DownloadIcon className="mr-2 rtl:mr-0 rtl:ml-2" /> {t.mcqDownloadPdf}
-                </button>
                 <button onClick={() => handleDownload('docx')} className="inline-flex items-center px-3 py-1.5 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 transition-colors duration-200">
                   <DownloadIcon className="mr-2 rtl:mr-0 rtl:ml-2" /> {t.mcqDownloadDocx}
                 </button>

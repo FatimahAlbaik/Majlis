@@ -1,14 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { ChatMessage } from '../types.ts';
 import { SendIcon, UserIcon, ModelIcon, SpinnerIcon } from './Icons.tsx';
 import { useApp } from '../hooks/useApp.ts';
 
+// Memoized input component to prevent re-renders on parent state changes
+const ChatInputForm: React.FC<{
+  onSendMessage: (message: string) => void;
+  isLoading: boolean;
+  placeholder: string;
+}> = React.memo(({ onSendMessage, isLoading, placeholder }) => {
+  const [inputValue, setInputValue] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || isLoading) return;
+    onSendMessage(inputValue.trim());
+    setInputValue('');
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex items-center space-x-3 rtl:space-x-reverse">
+      <input
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        placeholder={placeholder}
+        className="flex-grow px-4 py-2.5 border border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-light transition-shadow duration-200"
+        disabled={isLoading}
+      />
+      <button
+        type="submit"
+        disabled={isLoading || !inputValue.trim()}
+        className="p-3 rounded-full text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-110"
+      >
+        <SendIcon className="w-5 h-5" />
+      </button>
+    </form>
+  );
+});
+
+
 export const Chatbot: React.FC = () => {
   const { translations: t } = useApp();
   const [chat, setChat] = useState<Chat | null>(null);
   const [history, setHistory] = useState<ChatMessage[]>([]);
-  const [userInput, setUserInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -37,12 +73,9 @@ export const Chatbot: React.FC = () => {
     }
   }, [history]);
 
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!userInput.trim() || !chat || isLoading) return;
+  const handleSendMessage = useCallback(async (messageText: string) => {
+    if (!chat || isLoading) return;
 
-    const messageText = userInput.trim();
-    setUserInput('');
     setHistory(prev => [...prev, { role: 'user', text: messageText }]);
     setIsLoading(true);
     setError(null);
@@ -57,9 +90,9 @@ export const Chatbot: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [chat, isLoading, t.chatbotError]);
 
-  const MessageBubble: React.FC<{ message: ChatMessage }> = ({ message }) => {
+  const MessageBubble: React.FC<{ message: ChatMessage }> = React.memo(({ message }) => {
     const isUser = message.role === 'user';
     return (
       <div className={`flex items-start gap-3 ${isUser ? 'justify-end' : ''} animate-fade-in`}>
@@ -70,7 +103,7 @@ export const Chatbot: React.FC = () => {
          {isUser && <div className="p-1.5 rounded-full bg-slate-200 text-slate-600 flex-shrink-0"><UserIcon className="w-5 h-5" /></div>}
       </div>
     );
-  };
+  });
 
   return (
     <div className="bg-white rounded-xl shadow h-[calc(100vh-100px)] flex flex-col">
@@ -93,23 +126,11 @@ export const Chatbot: React.FC = () => {
       {error && <p className="p-4 text-sm text-red-600">{error}</p>}
       
       <div className="p-4 border-t border-slate-200 bg-slate-50 rounded-b-xl">
-        <form onSubmit={handleSendMessage} className="flex items-center space-x-3 rtl:space-x-reverse">
-          <input
-            type="text"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
+        <ChatInputForm
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading || !chat}
             placeholder={t.chatbotPlaceholder}
-            className="flex-grow px-4 py-2.5 border border-slate-300 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-light transition-shadow duration-200"
-            disabled={isLoading || !chat}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !chat || !userInput.trim()}
-            className="p-3 rounded-full text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-110"
-          >
-            <SendIcon className="w-5 h-5" />
-          </button>
-        </form>
+        />
       </div>
     </div>
   );
