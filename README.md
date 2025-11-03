@@ -32,9 +32,8 @@
 *   **AI Integration:** [Google Gemini API](https://ai.google.dev/) (`@google/genai`)
 *   **Styling:** [Tailwind CSS](https://tailwindcss.com/) (JIT via CDN)
 *   **File Handling:**
-    *   `pdfjs-dist` for client-side PDF text extraction.
-    *   `jspdf` & `jspdf-autotable` for generating PDF documents.
-    *   `docx` for generating Word documents.
+    *   `pdfjs-dist` for client-side PDF text extraction from uploads.
+    *   `docx` for generating and exporting Word documents.
 *   **Utilities:** `date-fns` for advanced date formatting and internationalization.
 *   **Environment:** Buildless setup using native ES Modules and `importmap` for CDN-based dependency management.
 
