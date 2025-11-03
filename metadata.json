@@ -1,0 +1,5 @@
+{
+  "name": "Accenture Academy Console",
+  "description": "A comprehensive, AI-powered suite for the Accenture Academy. Features include a dynamic Home Feed, user profiles, an Admin Panel with feedback moderation, and powerful AI tools like the MCQ Generator and an interactive Chatbot.",
+  "requestFramePermissions": []
+}
